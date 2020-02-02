@@ -1,3 +1,4 @@
+/*
 pub struct Memory {
 	memory: Vec<u8>
 }
@@ -43,4 +44,4 @@ impl Memory {
 	pub fn write_byte(&mut self, address: usize, data: u8) {
 		self.memory[address] = data;
 	}
-}
+}*/
