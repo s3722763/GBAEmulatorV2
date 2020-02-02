@@ -28,9 +28,9 @@ impl Core {
 			unimplemented!("Branch and Exchange decode");
 		} else if opcode.bits(25..28) == 0x0 && opcode.bit(7) == true && opcode.bit(1) == true {
 			if opcode.bit(22) == false && opcode.bits(8..12) == 0 {
-
+				unimplemented!("Halfword data transfer register offset decode");
 			} else {
-
+				unimplemented!("Halfword data transfer immediate offset decode");
 			}
 		} else if opcode.bits(26..28) == 1 {
 			unimplemented!("Single data transfer decode");
