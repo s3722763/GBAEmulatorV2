@@ -39,7 +39,7 @@ enum DataOpcode {
 }
 
 enum Instruction {
-    B {
+    Branch {
         cond: Condition,
         link: bool,
         offset: u32,
@@ -73,6 +73,25 @@ enum Instruction {
 		imm: bool,
 		destination_psr: bool,
 		source_op: u16
+	},
+	Multiply {
+		cond: Condition,
+		accumulate: bool,
+		set_cond: bool,
+		rd: usize,
+		rn: usize,
+		rs: usize,
+		rm: usize
+	},
+	Multiply_Long {
+		cond: Condition,
+		signed: bool,
+		accumulate: bool,
+		set_cond: boo,
+		rd_hi: usize,
+		rd_lo: usize,
+		rs: usize,
+		rm: usize
 	}
 }
 
@@ -167,7 +186,7 @@ fn branch_decode(opcode: u32, cond: Condition) -> Option<Instruction> {
         offset |= 0xFF000000;
     };
 
-    let mut instruction = Instruction::B {
+    let mut instruction = Instruction::Branch {
         cond,
         link: opcode.bit(24),
         offset,
@@ -212,7 +231,7 @@ fn data_processing_decode(opcode: u32, cond: Condition) -> Option<Instruction> {
 		}
 	}
 
-	if let Some(data_opcode) = get_opcode(opcode.bits(21..25) as u8) {
+	if let Some(data_opcode) = get_data_opcode(opcode.bits(21..25) as u8) {
 		let data_instruction = Instruction::Data_processing {
 			cond,
 			imm: opcode.bit(25),
@@ -229,7 +248,7 @@ fn data_processing_decode(opcode: u32, cond: Condition) -> Option<Instruction> {
 	unreachable!();
 }
 
-fn get_opcode(opcode_byte: u8) -> Option<DataOpcode> {
+fn get_data_opcode(opcode_byte: u8) -> Option<DataOpcode> {
 	match opcode_byte {
 		0x00 => return Some(DataOpcode::AND),
 		0x01 => return Some(DataOpcode::EOR),
@@ -249,4 +268,29 @@ fn get_opcode(opcode_byte: u8) -> Option<DataOpcode> {
 		0x0F => return Some(DataOpcode::MVN),
 		_ => None
 	}
+}
+
+fn multiply_decode(opcode: u32, cond: Condition) -> Option<Instruction> {
+	return Some(Instruction::Multiply {
+		cond,
+		accumulate: opcode.bit(21),
+		set_cond: opcode.bit(22),
+		rd: opcode.bits(16..20) as usize,
+		rn: opcode.bits(12..16) as usize,
+		rs: opcode.bits(8..12) as usize,
+		rm: opcode.bits(0..4) as usize
+	});
+}
+
+fn multiply_long_decode(opcode: u32, cond: Condition) -> Option<Instruction> {
+	return Some(Instruction::Multiply_Long {
+		cond,
+		signed: opcode.bit(22),
+		accumulate: opcode.bit(21),
+		set_cond: opcode.bit(20),
+		rd_hi: opcode.bits(16..20) as usize,
+		rd_lo: opcode.bits(12..16) as usize,
+		rs: opcode.bits(8..12) as usize,
+		rm: opcode.bits(0..4) as usize
+	});
 }
