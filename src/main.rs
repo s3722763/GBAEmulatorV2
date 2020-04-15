@@ -1,3 +1,7 @@
-mod arm;
+#![allow(non_snake_case)]
 
-fn main() {}
+mod cpu;
+
+fn main() {
+
+}
